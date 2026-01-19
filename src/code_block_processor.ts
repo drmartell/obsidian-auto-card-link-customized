@@ -70,6 +70,7 @@ export class CodeBlockProcessor {
       host: yaml.host,
       favicon: yaml.favicon,
       image: yaml.image,
+      imageBackground: yaml.imageBackground ?? "#ffffff",
       indent,
     };
   }
@@ -123,7 +124,7 @@ export class CodeBlockProcessor {
       const faviconEl = document.createElement("img");
       faviconEl.addClass("auto-card-link-favicon");
       faviconEl.setAttr("src", data.favicon);
-      
+
       // Fallback to Google favicon service if direct URL fails to load
       if (data.host) {
         const fallbackUrl = `https://www.google.com/s2/favicons?domain=${data.host}&sz=32`;
@@ -133,7 +134,7 @@ export class CodeBlockProcessor {
           }
         };
       }
-      
+
       hostEl.appendChild(faviconEl);
     }
 
@@ -151,6 +152,9 @@ export class CodeBlockProcessor {
       thumbnailEl.addClass("auto-card-link-thumbnail");
       thumbnailEl.setAttr("src", data.image);
       thumbnailEl.setAttr("draggable", "false");
+      if (data.imageBackground) {
+        thumbnailEl.style.backgroundColor = data.imageBackground;
+      }
       cardEl.appendChild(thumbnailEl);
     }
 
