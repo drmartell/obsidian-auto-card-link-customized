@@ -63,10 +63,22 @@ export class LinkMetadataParser {
   }
 
   private async getFavicon(): Promise<string | undefined> {
-    const favicon = this.htmlDoc
-      .querySelector("link[rel='icon']")
-      ?.getAttr("href");
-    if (favicon) return await this.fixImageUrl(favicon);
+    const selectors = [
+      "link[rel='icon']",
+      "link[rel='shortcut icon']",
+      "link[rel='apple-touch-icon']",
+      "link[rel='apple-touch-icon-precomposed']",
+    ];
+
+    for (const selector of selectors) {
+      const favicon = this.htmlDoc.querySelector(selector)?.getAttr("href");
+      if (favicon) {
+        return await this.fixImageUrl(favicon, true);
+      }
+    }
+
+    const { hostname } = new URL(this.url);
+    return `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
   }
 
   private async getImage(): Promise<string | undefined> {
@@ -76,26 +88,29 @@ export class LinkMetadataParser {
     if (ogImage) return await this.fixImageUrl(ogImage);
   }
 
-  private async fixImageUrl(url: string | undefined): Promise<string> {
+  private async fixImageUrl(url: string | undefined, isFavicon = false): Promise<string> {
     if (url === undefined) return "";
     const { hostname } = new URL(this.url);
     let image = url;
+
+    const isIcoFile = url.toLowerCase().endsWith(".ico");
+
     // check if image url use double protocol
     if (url && url.startsWith("//")) {
       //   check if url can access via https or http
       const testUrlHttps = `https:${url}`;
       const testUrlHttp = `http:${url}`;
-      if (await checkUrlAccessibility(testUrlHttps)) {
+      if (await checkUrlAccessibility(testUrlHttps, isIcoFile)) {
         image = testUrlHttps;
-      } else if (await checkUrlAccessibility(testUrlHttp)) {
+      } else if (await checkUrlAccessibility(testUrlHttp, isIcoFile)) {
         image = testUrlHttp;
       }
     } else if (url && url.startsWith("/") && hostname) {
       //   check if image url is relative path
       const testUrlHttps = `https://${hostname}${url}`;
       const testUrlHttp = `http://${hostname}${url}`;
-      const resUrlHttps = await checkUrlAccessibility(testUrlHttps);
-      const resUrlHttp = await checkUrlAccessibility(testUrlHttp);
+      const resUrlHttps = await checkUrlAccessibility(testUrlHttps, isIcoFile);
+      const resUrlHttp = await checkUrlAccessibility(testUrlHttp, isIcoFile);
       //   check if url can access via https or http
       if (resUrlHttps) {
         image = testUrlHttps;
@@ -105,7 +120,11 @@ export class LinkMetadataParser {
     }
 
     // check if url is accessible via image element
-    async function checkUrlAccessibility(url: string): Promise<boolean> {
+    // For .ico files, skip Image validation as browsers don't reliably decode them
+    async function checkUrlAccessibility(url: string, skipImageValidation = false): Promise<boolean> {
+      if (skipImageValidation) {
+        return true;
+      }
       return new Promise((resolve) => {
         const img = new Image();
         img.onload = () => resolve(true);
