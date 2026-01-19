@@ -1,3 +1,5 @@
+> NOTE: This fork is maintained by drmartell
+
 # Auto Card Link
 
 - Automatically fetches metadata from a url and makes it as a card-styled link.
