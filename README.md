@@ -29,6 +29,7 @@ The code block `cardlink` uses YAML syntax for displaying card-styled link.
 |host|false|host of the link|
 |favicon|false|favicon of the link|
 |image|false|thumbnail image to show in the card link|
+|imageBackground|false|background color for the thumbnail (useful for transparent images). Defaults to `#ffffff`. Must be quoted if using `#` (e.g., `"#000000"`)|
 
 
 ## example
@@ -40,6 +41,7 @@ description: "Obsidian: A knowledge base that works on local Markdown files."
 host: obsidian.md
 favicon: https://obsidian.md/favicon.ico
 image: https://obsidian.md/images/banner.png
+imageBackground: "#f5f5f5"
 ​```
 ```
 
