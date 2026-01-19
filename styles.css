@@ -105,7 +105,10 @@
 
 .auto-card-link-title {
     overflow: hidden;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     text-overflow: ellipsis;
 
     &:hover {
@@ -155,15 +158,20 @@
 .auto-card-link-favicon {
     width: 16px !important;
     height: auto !important;
-    margin: 0 0.5em 0 0 !important;
+    margin-right: 0.5em !important;
+}
+
+.auto-card-link-favicon + span::before {
+    content: " ";
 }
 
 .auto-card-link-thumbnail {
     width: unset !important;
     border-radius: var(--radius-s) 0 0 var(--radius-s) !important;
     height: 100%;
-    object-fit: cover;
-    max-width: 50% !important;
+    object-fit: fill;
+    max-width: min(200px, 50%) !important;
+    background-color: white;
     pointer-events: none;
 }
 
